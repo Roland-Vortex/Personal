@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shared Hangouts</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+    <style>
+        body {
+            background-color: #ffb6c1;
+            color: black;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 40px;
+        }
+
+        form {
+            margin: 20px auto;
+            width: 300px;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px;
+            text-align: center;
+        }
+
+        button {
+            background-color: black;
+            color: #ffb6c1;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+    </style>
+
+    <script>
+        const socket = io();
+
+        socket.on("new_event", function(data) {
+            location.reload();
+        });
+
+        socket.on("delete_event", function(data) {
+            location.reload();
+        });
+    </script>
+</head>
+
+<body>
+
+    <h1>💗 Shared Hangouts 💗</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="text" name="name" placeholder="Event Name" required>
+        <input type="date" name="date" required>
+        <input type="time" name="time" required>
+        <input type="text" name="location" placeholder="Location">
+        <textarea name="notes" placeholder="Notes"></textarea>
+        <button type="submit">Add Hangout</button>
+    </form>
+
+    <h2>Upcoming Hangouts</h2>
+
+    <ul>
+        {% for event in events %}
+            <li>
+                <strong>{{ event[1] }}</strong><br>
+                {{ event[2] }} at {{ event[3] }}<br>
+                {{ event[4] }}<br>
+                {{ event[5] }}<br>
+                <form method="POST" action="{{ url_for('delete', event_id=event[0]) }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

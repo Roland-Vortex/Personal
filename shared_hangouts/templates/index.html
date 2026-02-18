@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shared Hangouts</title>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('new_event', function(event) {
+            const eventsList = document.getElementById('events');
+            const li = document.createElement('li');
+            li.textContent = event.sender + " scheduled: " + event.name + " - " + event.date + " " + event.time + " at " + event.location;
+            eventsList.appendChild(li);
+            alert("New event received from " + event.sender + "!");
+        });
+    </script>
+</head>
+<body>
+    <h1>Schedule a Hangout / Date</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <label>Name: <input type="text" name="name"></label><br>
+        <label>Date: <input type="date" name="date"></label><br>
+        <label>Time: <input type="time" name="time"></label><br>
+        <label>Location: <input type="text" name="location"></label><br>
+        <label>Notes: <textarea name="notes"></textarea></label><br>
+        <button type="submit">Add Hangout</button>
+    </form>
+
+    <h2>Upcoming Hangouts</h2>
+    <ul id="events">
+        {% for event in events %}
+            <li>{{ event[6] }} scheduled: {{ event[1] }} - {{ event[2] }} {{ event[3] }} at {{ event[4] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

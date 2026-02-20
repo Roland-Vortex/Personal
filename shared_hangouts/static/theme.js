@@ -3,9 +3,9 @@ function setTheme(theme) {
     localStorage.setItem("theme", theme);
 }
 
-window.onload = function() {
+window.addEventListener("DOMContentLoaded", () => {
     const saved = localStorage.getItem("theme");
     if (saved) {
         document.body.className = saved;
     }
-}
+});

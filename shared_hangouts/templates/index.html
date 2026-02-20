@@ -1,45 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="/static/style.css">
-<script src="/static/theme.js"></script>
+    <meta charset="UTF-8">
+    <title>Make A Date</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
 </head>
 <body>
+    <h1>Welcome Lover</h1>
 
-<h1>Welcome lover 💖</h1>
+    <!-- Theme selector -->
+    <select id="theme-select">
+        <option value="red-white">Red/White</option>
+        <option value="pink-black">Pink/Black</option>
+        <option value="lightblue-black">Light Blue/Black</option>
+        <option value="darkblue-white">Dark Blue/White</option>
+        <option value="green-white">Green/White</option>
+        <option value="purple-white">Purple/White</option>
+        <option value="yellow-black">Yellow/Black</option>
+    </select>
 
-<select onchange="setTheme(this.value)">
-<option value="pink">Pink</option>
-<option value="red">Red</option>
-<option value="lightblue">Light Blue</option>
-<option value="darkblue">Dark Blue</option>
-<option value="green">Green</option>
-<option value="purple">Purple</option>
-<option value="yellow">Yellow</option>
-</select>
+    <form action="/add_date" method="POST">
+        <input type="text" name="title" placeholder="Title" required>
+        <input type="date" name="date" required>
+        <button type="submit">Add Date</button>
+    </form>
 
-<form method="POST" class="card">
-<input name="title" placeholder="Title" required>
-<input type="date" name="date" required>
-<input type="time" name="time">
-<input name="location" placeholder="Location">
-<input name="notes" placeholder="Notes">
-<button>Add Date</button>
-</form>
-
-{% for event in events %}
-<div class="card">
-<form method="POST" action="/edit/{{event[0]}}">
-<input name="title" value="{{event[1]}}">
-<input type="date" name="date" value="{{event[2]}}">
-<input name="time" value="{{event[3]}}">
-<input name="location" value="{{event[4]}}">
-<input name="notes" value="{{event[5]}}">
-<button>Update</button>
-<a href="/delete/{{event[0]}}">Delete</a>
-</form>
-</div>
-{% endfor %}
-
+    <ul>
+        {% for d in dates %}
+            <li>{{ d[1] }} - {{ d[2] }}
+                <form action="/delete_date/{{ d[0] }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

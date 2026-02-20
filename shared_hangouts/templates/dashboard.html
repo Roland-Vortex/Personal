@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/theme.js" defer></script>
+</head>
+<body>
+
+<h1>Welcome lover ❤️</h1>
+
+<div class="theme-buttons">
+    <button onclick="setTheme('red')">Red</button>
+    <button onclick="setTheme('pink')">Pink</button>
+    <button onclick="setTheme('lightblue')">Light Blue</button>
+    <button onclick="setTheme('darkblue')">Dark Blue</button>
+    <button onclick="setTheme('green')">Green</button>
+    <button onclick="setTheme('purple')">Purple</button>
+    <button onclick="setTheme('yellow')">Yellow</button>
+</div>
+
+<h2>Add Date</h2>
+<form method="POST" action="/add">
+    <input type="text" name="title" placeholder="Title" required>
+    <input type="date" name="date" required>
+    <button type="submit">Add</button>
+</form>
+
+<h2>Your Dates</h2>
+
+{% for d in dates %}
+<div class="card">
+    <form method="POST" action="/edit/{{ d[0] }}">
+        <input type="text" name="title" value="{{ d[1] }}">
+        <input type="date" name="date" value="{{ d[2] }}">
+        <button type="submit">Modify</button>
+        <a href="/delete/{{ d[0] }}">Delete</a>
+    </form>
+</div>
+{% endfor %}
+
+</body>
+</html>

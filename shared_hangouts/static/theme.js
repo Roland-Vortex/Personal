@@ -1,26 +1,12 @@
-function setTheme(theme) {
-    localStorage.setItem("theme", theme);
-    applyTheme(theme);
-}
+const select = document.getElementById("themeSelect");
+select.value = document.body.className;
 
-function applyTheme(theme) {
-    const body = document.body;
-
-    const themes = {
-        pink: ["pink","black"],
-        red: ["red","white"],
-        lightblue: ["lightblue","black"],
-        darkblue: ["darkblue","white"],
-        green: ["green","white"],
-        purple: ["purple","white"],
-        yellow: ["yellow","black"]
-    };
-
-    body.style.backgroundColor = themes[theme][0];
-    body.style.color = themes[theme][1];
-}
-
-window.onload = () => {
-    const saved = localStorage.getItem("theme") || "pink";
-    applyTheme(saved);
-};
+select.addEventListener("change", async () => {
+  const theme = select.value;
+  document.body.className = theme;
+  await fetch("/change_theme", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `theme=${theme}`
+  });
+});

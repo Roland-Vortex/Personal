@@ -1,100 +1,75 @@
 import os
-import json
 from datetime import date
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 import psycopg2
-from pywebpush import webpush
+from pywebpush import webpush, WebPushException
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
+app.debug = True
 
-# Database connection
+# --- Database connection ---
 def get_db():
     return psycopg2.connect(
         host=os.environ.get("DB_HOST"),
         database=os.environ.get("DB_NAME"),
         user=os.environ.get("DB_USER"),
         password=os.environ.get("DB_PASS"),
-        port=os.environ.get("DB_PORT")
+        port=os.environ.get("DB_PORT"),
+        sslmode="require",
+        connect_timeout=5
     )
 
-# Auto delete past dates
-def delete_old_dates():
+# --- Routes ---
+@app.route("/")
+def index():
+    if "user_id" not in session:
+        return redirect("/login")
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("DELETE FROM events WHERE date < CURRENT_DATE;")
+    # Delete past dates automatically
+    cur.execute("DELETE FROM dates WHERE date_value < CURRENT_DATE")
     conn.commit()
+    cur.execute("SELECT id, date_value FROM dates WHERE user_id=%s ORDER BY date_value ASC", (session["user_id"],))
+    dates = cur.fetchall()
     cur.close()
     conn.close()
+    return render_template("index.html", dates=dates, theme=session.get("theme", "red"))
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form["username"] == "EllaSamuel" and request.form["password"] == "10-19-2025":
-            session["user"] = "lover"
-            return redirect("/home")
+        user_id = request.form.get("user_id")
+        session["user_id"] = user_id
+        session["theme"] = "red"
+        return redirect("/")
     return render_template("login.html")
 
-@app.route("/home", methods=["GET", "POST"])
-def home():
-    if "user" not in session:
-        return redirect("/")
-
-    delete_old_dates()
-
+@app.route("/add_date", methods=["POST"])
+def add_date():
+    date_value = request.form.get("date")
+    if not date_value:
+        return "No date provided", 400
     conn = get_db()
     cur = conn.cursor()
-
-    if request.method == "POST":
-        title = request.form["title"]
-        event_date = request.form["date"]
-        time = request.form["time"]
-        location = request.form["location"]
-        notes = request.form["notes"]
-
-        cur.execute(
-            "INSERT INTO events (title, date, time, location, notes) VALUES (%s,%s,%s,%s,%s)",
-            (title, event_date, time, location, notes)
-        )
-        conn.commit()
-
-    cur.execute("SELECT * FROM events ORDER BY date ASC;")
-    events = cur.fetchall()
-
-    cur.close()
-    conn.close()
-
-    return render_template("index.html", events=events)
-
-@app.route("/delete/<int:id>")
-def delete(id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM events WHERE id=%s;", (id,))
+    cur.execute("INSERT INTO dates (user_id, date_value) VALUES (%s, %s)", (session["user_id"], date_value))
     conn.commit()
     cur.close()
     conn.close()
-    return redirect("/home")
+    return redirect("/")
 
-@app.route("/edit/<int:id>", methods=["POST"])
-def edit(id):
+@app.route("/delete_date/<int:date_id>")
+def delete_date(date_id):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute(
-        "UPDATE events SET title=%s, date=%s, time=%s, location=%s, notes=%s WHERE id=%s",
-        (
-            request.form["title"],
-            request.form["date"],
-            request.form["time"],
-            request.form["location"],
-            request.form["notes"],
-            id
-        )
-    )
+    cur.execute("DELETE FROM dates WHERE id=%s AND user_id=%s", (date_id, session["user_id"]))
     conn.commit()
     cur.close()
     conn.close()
-    return redirect("/home")
+    return redirect("/")
 
-if __name__ == "__main__":
-    app.run()
+@app.route("/change_theme", methods=["POST"])
+def change_theme():
+    new_theme = request.form.get("theme")
+    session["theme"] = new_theme
+    return jsonify(success=True)

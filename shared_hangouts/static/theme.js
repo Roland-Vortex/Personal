@@ -1,26 +1,11 @@
-function setTheme(theme) {
-    localStorage.setItem("theme", theme);
-    applyTheme(theme);
-}
+// Load last theme
+const themeSelect = document.getElementById('theme-select');
+const lastTheme = localStorage.getItem('theme') || 'red-white';
+document.body.className = lastTheme;
+themeSelect.value = lastTheme;
 
-function applyTheme(theme) {
-    const body = document.body;
-
-    const themes = {
-        pink: ["pink","black"],
-        red: ["red","white"],
-        lightblue: ["lightblue","black"],
-        darkblue: ["darkblue","white"],
-        green: ["green","white"],
-        purple: ["purple","white"],
-        yellow: ["yellow","black"]
-    };
-
-    body.style.backgroundColor = themes[theme][0];
-    body.style.color = themes[theme][1];
-}
-
-window.onload = () => {
-    const saved = localStorage.getItem("theme") || "pink";
-    applyTheme(saved);
-};
+// Change theme
+themeSelect.addEventListener('change', () => {
+    document.body.className = themeSelect.value;
+    localStorage.setItem('theme', themeSelect.value);
+});

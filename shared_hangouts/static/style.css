@@ -1,34 +1,12 @@
-body {
-    font-family: Arial;
-    text-align: center;
-    transition: 0.3s;
-}
+body.red { background: red; color: white; }
+body.pink { background: pink; color: black; }
+body.lightblue { background: lightblue; color: black; }
+body.darkblue { background: darkblue; color: white; }
+body.green { background: green; color: white; }
+body.purple { background: purple; color: white; }
+body.yellow { background: yellow; color: black; }
 
-.center {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-
-.card {
-    background:white;
-    padding:20px;
-    margin:20px auto;
-    width:90%;
-    max-width:400px;
-    border-radius:12px;
-}
-
-.hidden { display:none; }
-
-.envelope {
-    width:150px;
-    height:100px;
-    background:pink;
-    cursor:pointer;
-    transition:0.5s;
-}
-.envelope.open {
-    transform: rotateX(180deg);
-}
+body { font-family: Arial, sans-serif; padding: 20px; }
+h1 { font-size: 2em; }
+ul { list-style: none; padding: 0; }
+li { margin: 10px 0; }

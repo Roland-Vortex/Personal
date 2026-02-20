@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <title>Login - Make A Date</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="center">
-
-<div class="envelope-container">
-    <div class="envelope" onclick="openLetter()"></div>
-</div>
-
-<form method="POST" class="card hidden" id="loginCard">
-    <h2>Private Login</h2>
-    <input name="username" placeholder="Username" required>
-    <input name="password" type="password" placeholder="Password" required>
-    <button type="submit">Enter</button>
-</form>
-
-<script>
-function openLetter() {
-    document.querySelector(".envelope").classList.add("open");
-    document.getElementById("loginCard").classList.remove("hidden");
-}
-</script>
-
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Enter your name" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </body>
 </html>

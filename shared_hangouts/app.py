@@ -1,11 +1,11 @@
 import os
-from flask import Flask, render_template, request, redirect, session
 import psycopg2
+from flask import Flask, render_template, request, redirect, session
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "mysecret123")
+app.secret_key = os.environ.get("SECRET_KEY")
 
-# Database connection
+
 def get_db():
     return psycopg2.connect(
         host=os.environ.get("DB_HOST"),
@@ -15,6 +15,7 @@ def get_db():
         port=os.environ.get("DB_PORT"),
         sslmode="require"
     )
+
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -28,60 +29,72 @@ def login():
 
     return render_template("login.html")
 
-@app.route("/dashboard")
+
+@app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if "user" not in session:
         return redirect("/")
 
     db = get_db()
     cur = db.cursor()
-    cur.execute("SELECT * FROM dates ORDER BY date ASC;")
-    dates = cur.fetchall()
+
+    if request.method == "POST":
+        title = request.form["title"]
+        date = request.form["date"]
+        time = request.form["time"]
+        description = request.form["description"]
+
+        cur.execute(
+            "INSERT INTO plans (title, date, time, description) VALUES (%s, %s, %s, %s)",
+            (title, date, time, description),
+        )
+        db.commit()
+
+    cur.execute("SELECT * FROM plans ORDER BY date ASC")
+    plans = cur.fetchall()
+
     cur.close()
     db.close()
 
-    return render_template("dashboard.html", dates=dates)
+    return render_template("dashboard.html", plans=plans)
 
-@app.route("/add", methods=["POST"])
-def add():
-    title = request.form["title"]
-    date_value = request.form["date"]
-
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("INSERT INTO dates (title, date) VALUES (%s, %s);",
-                (title, date_value))
-    db.commit()
-    cur.close()
-    db.close()
-
-    return redirect("/dashboard")
 
 @app.route("/delete/<int:id>")
 def delete(id):
     db = get_db()
     cur = db.cursor()
-    cur.execute("DELETE FROM dates WHERE id=%s;", (id,))
+    cur.execute("DELETE FROM plans WHERE id = %s", (id,))
     db.commit()
     cur.close()
     db.close()
-
     return redirect("/dashboard")
+
 
 @app.route("/edit/<int:id>", methods=["POST"])
 def edit(id):
     title = request.form["title"]
-    date_value = request.form["date"]
+    date = request.form["date"]
+    time = request.form["time"]
+    description = request.form["description"]
 
     db = get_db()
     cur = db.cursor()
-    cur.execute("UPDATE dates SET title=%s, date=%s WHERE id=%s;",
-                (title, date_value, id))
+    cur.execute(
+        """
+        UPDATE plans
+        SET title=%s, date=%s, time=%s, description=%s
+        WHERE id=%s
+        """,
+        (title, date, time, description, id),
+    )
     db.commit()
     cur.close()
     db.close()
 
     return redirect("/dashboard")
 
-if __name__ == "__main__":
-    app.run()
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")

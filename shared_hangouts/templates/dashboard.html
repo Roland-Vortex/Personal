@@ -1,40 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/style.css">
-<script src="/static/theme.js" defer></script>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/theme.js"></script>
 </head>
 <body>
 
 <h1>Welcome lover ❤️</h1>
 
-<div class="theme-buttons">
-    <button onclick="setTheme('red')">Red</button>
-    <button onclick="setTheme('pink')">Pink</button>
-    <button onclick="setTheme('lightblue')">Light Blue</button>
-    <button onclick="setTheme('darkblue')">Dark Blue</button>
-    <button onclick="setTheme('green')">Green</button>
-    <button onclick="setTheme('purple')">Purple</button>
-    <button onclick="setTheme('yellow')">Yellow</button>
-</div>
+<button onclick="toggleTheme()">Swap Theme</button>
+<a href="/logout">Logout</a>
 
-<h2>Add Date</h2>
-<form method="POST" action="/add">
-    <input type="text" name="title" placeholder="Title" required>
+<h2>Add New Plan</h2>
+
+<form method="POST">
+    <input type="text" name="title" placeholder="Plan title" required>
     <input type="date" name="date" required>
-    <button type="submit">Add</button>
+    <input type="time" name="time" required>
+    <textarea name="description" placeholder="Description..." required></textarea>
+    <button type="submit">Add Plan</button>
 </form>
 
-<h2>Your Dates</h2>
+<hr>
 
-{% for d in dates %}
+<h2>Your Plans</h2>
+
+{% for plan in plans %}
 <div class="card">
-    <form method="POST" action="/edit/{{ d[0] }}">
-        <input type="text" name="title" value="{{ d[1] }}">
-        <input type="date" name="date" value="{{ d[2] }}">
+    <h3>{{ plan[1] }}</h3>
+    <p><strong>Date:</strong> {{ plan[2] }}</p>
+    <p><strong>Time:</strong> {{ plan[3] }}</p>
+    <p><strong>Description:</strong> {{ plan[4] }}</p>
+
+    <form action="/edit/{{ plan[0] }}" method="POST">
+        <input type="text" name="title" value="{{ plan[1] }}" required>
+        <input type="date" name="date" value="{{ plan[2] }}" required>
+        <input type="time" name="time" value="{{ plan[3] }}" required>
+        <textarea name="description" required>{{ plan[4] }}</textarea>
         <button type="submit">Modify</button>
-        <a href="/delete/{{ d[0] }}">Delete</a>
     </form>
+
+    <a href="/delete/{{ plan[0] }}">Delete</a>
 </div>
 {% endfor %}
 
